@@ -457,6 +457,7 @@ static void (*__thiscall p_basic_fstream_wchar_vbase_dtor)(basic_fstream_wchar*)
 static basic_istream_char* (*__thiscall p_basic_istream_char_read_uint64)(basic_istream_char*, unsigned __int64*);
 static basic_istream_char* (*__thiscall p_basic_istream_char_read_float)(basic_istream_char*, float*);
 static basic_istream_char* (*__thiscall p_basic_istream_char_read_double)(basic_istream_char*, double*);
+static basic_istream_char* (*__cdecl    p_basic_istream_char_read_complex_double)(basic_istream_char*, complex_double*);
 static int                 (*__thiscall p_basic_istream_char_get)(basic_istream_char*);
 static MSVCP_bool          (*__thiscall p_basic_istream_char_ipfx)(basic_istream_char*, MSVCP_bool);
 static basic_istream_char* (*__thiscall p_basic_istream_char_ignore)(basic_istream_char*, streamsize, int);
@@ -672,6 +673,8 @@ static BOOL init(void)
             "??5?$basic_istream@DU?$char_traits@D@std@@@std@@QEAAAEAV01@AEAM@Z");
         SET(p_basic_istream_char_read_double,
             "??5?$basic_istream@DU?$char_traits@D@std@@@std@@QEAAAEAV01@AEAN@Z");
+        SET(p_basic_istream_char_read_complex_double,
+            "??$?5NDU?$char_traits@D@std@@@std@@YAAEAV?$basic_istream@DU?$char_traits@D@std@@@0@AEAV10@AEAV?$complex@N@0@@Z");
         SET(p_basic_istream_char_get,
             "?get@?$basic_istream@DU?$char_traits@D@std@@@std@@QEAAHXZ");
         SET(p_basic_istream_char_ipfx,
@@ -800,6 +803,8 @@ static BOOL init(void)
             "??5?$basic_istream@DU?$char_traits@D@std@@@std@@QAAAAV01@AAM@Z");
         SET(p_basic_istream_char_read_double,
             "??5?$basic_istream@DU?$char_traits@D@std@@@std@@QAAAAV01@AAN@Z");
+        SET(p_basic_istream_char_read_complex_double,
+            "??$?5NDU?$char_traits@D@std@@@std@@YAAAV?$basic_istream@DU?$char_traits@D@std@@@0@AAV10@AAV?$complex@N@0@@Z");
         SET(p_basic_istream_char_get,
             "?get@?$basic_istream@DU?$char_traits@D@std@@@std@@QAAHXZ");
         SET(p_basic_istream_char_ipfx,
@@ -927,6 +932,8 @@ static BOOL init(void)
             "??5?$basic_istream@DU?$char_traits@D@std@@@std@@QAEAAV01@AAM@Z");
         SET(p_basic_istream_char_read_double,
             "??5?$basic_istream@DU?$char_traits@D@std@@@std@@QAEAAV01@AAN@Z");
+        SET(p_basic_istream_char_read_complex_double,
+            "??$?5NDU?$char_traits@D@std@@@std@@YAAAV?$basic_istream@DU?$char_traits@D@std@@@0@AAV10@AAV?$complex@N@0@@Z");
         SET(p_basic_istream_char_get,
             "?get@?$basic_istream@DU?$char_traits@D@std@@@std@@QAEHXZ");
         SET(p_basic_istream_char_ipfx,
@@ -2180,6 +2187,120 @@ static void test_ostream_print_complex_ldouble(void)
     call_func1(p_basic_stringstream_char_vbase_dtor, &ss);
 }
 
+static void test_istream_read_complex_double(void)
+{
+    basic_stringstream_char ss;
+    basic_string_char str;
+    IOSB_iostate state;
+    complex_double val;
+    int i;
+    const char *deadbeef_str = "(3.14159,3456.7890)";
+    complex_double deadbeef = {3.14159, 3456.7890};
+    const IOSB_iostate IOSTATE_faileof = IOSTATE_failbit|IOSTATE_eofbit;
+
+    struct _test_istream_read_complex_double {
+        const char  *complex_double_str;
+        complex_double right_val;
+        IOSB_iostate state;
+    } tests[] = {
+        { "(-1.1\t \t,+3ex  \t  ", deadbeef , IOSTATE_failbit},
+        { "(-1.1  , \t -3.4e \t ", deadbeef , IOSTATE_failbit},
+        { "(-1.1  , \t -3.4E3 \t ", deadbeef , IOSTATE_faileof},
+
+        { "(-1.1,3  \t  ", deadbeef , IOSTATE_faileof},
+        { "(-1.1,3f  \t  ", deadbeef , IOSTATE_failbit},
+        { "(-1.1, \t -3.x \t ", deadbeef , IOSTATE_failbit},
+
+        { "   +12.3", {12.3, 0} , IOSTATE_eofbit},
+        { "\t-1e2", {-100, 0} , IOSTATE_eofbit},
+
+        { "-", deadbeef , IOSTATE_faileof},
+        { "(12,.", deadbeef , IOSTATE_faileof },
+        { ".09", {0.09, 0} , IOSTATE_eofbit},
+        { "6.66", {6.66, 0} , IOSTATE_eofbit},
+        { "   1.23", {1.23, 0} , IOSTATE_eofbit},
+        { "\t1e2", {100, 0} , IOSTATE_eofbit},//to this end
+
+        { "(-1.1,+3E", deadbeef , IOSTATE_faileof},
+        { "(-1.1,+xx", deadbeef , IOSTATE_failbit},
+        { "(-1.1, \t -3.4  \t ", deadbeef , IOSTATE_faileof},
+        { "(-1.1, \t -3.4f", deadbeef , IOSTATE_failbit},
+
+        { "(-1.1,3.", deadbeef , IOSTATE_faileof},
+        { "(-1.1, \t 3", deadbeef , IOSTATE_faileof},
+        { "1e2  \t  ", {100, 0} , IOSTATE_goodbit},
+        { "(3.)", {3, 0} , IOSTATE_goodbit},
+
+        { "\t \t  ", deadbeef , IOSTATE_faileof},
+        { "   ", deadbeef , IOSTATE_faileof},
+        { "6.66  3", {6.66, 0} , IOSTATE_goodbit},
+        { "55,,", {55, 0} , IOSTATE_goodbit},
+        { "(+.3e5, -4E1)", {30000, -40}, IOSTATE_goodbit},
+        { "(2E1, 3e10)", {20, 3e+10}, IOSTATE_goodbit},
+        { "(1.0eE10, 3)", deadbeef, IOSTATE_failbit},
+        { "++12,45", deadbeef , IOSTATE_failbit},
+        { "(3, -.4)", {3, -0.4}, IOSTATE_goodbit},
+        { " +        ", deadbeef  , IOSTATE_failbit},
+        { "(-12.34, 5.5)", {-12.34, 5.5}, IOSTATE_goodbit},
+        { "(-1.1, --2.2)", deadbeef , IOSTATE_failbit},
+        { "(-1.1\n, \n--2.2", deadbeef , IOSTATE_failbit},
+        { "(+3.3, -4.4)", {3.3, -4.4}, IOSTATE_goodbit },
+        { "(--------2.34, 5.5)", deadbeef , IOSTATE_failbit},
+        { "(5.123, 2.12)", {5.123, 2.12}, IOSTATE_goodbit },
+        { "(3,, 8)", deadbeef , IOSTATE_failbit},
+        { "( 6.666 , 7.77)", {6.666, 7.77} , IOSTATE_goodbit},
+        { "( 9 9,12)", deadbeef , IOSTATE_failbit},
+        { "\t ( 1\t , \t 12&\t  \t)", deadbeef , IOSTATE_failbit},
+        { "(3..3, 8)", deadbeef , IOSTATE_failbit},
+        { "\t(\t9.9\t,\t10.1\t\t)", {9.9, 10.1} , IOSTATE_goodbit},
+        { "(3.14158,1.23458)", {3.14158, 1.23458} , IOSTATE_goodbit},
+        { "(3.12*55)", deadbeef , IOSTATE_failbit},
+        { "(3.12,55*", deadbeef , IOSTATE_failbit},
+        { "(3.12,5*5)", deadbeef , IOSTATE_failbit},
+        { "(3.12 55)", deadbeef, IOSTATE_failbit },
+        { "(3.12,*", deadbeef , IOSTATE_failbit},
+        { "(3.12,)", deadbeef , IOSTATE_failbit},
+        { "(\n3.12\n,\n*", deadbeef , IOSTATE_failbit},
+        { "(\n12\n12", deadbeef , IOSTATE_failbit},
+        { "(12\n4", deadbeef , IOSTATE_failbit},
+        { "(6..)", deadbeef , IOSTATE_failbit},
+        { "(,)", deadbeef , IOSTATE_failbit},
+        { "(,555)", deadbeef , IOSTATE_failbit},
+        { "(*)", deadbeef , IOSTATE_failbit},
+        { "(\n*", deadbeef , IOSTATE_failbit},
+        { "*", deadbeef , IOSTATE_failbit},
+        { "(8.88,  8))))))))))))))", {8.88, 8} , IOSTATE_goodbit},
+        { "(9.99,  9)1&23*()&23*()", {9.99, 9} , IOSTATE_goodbit},
+        { "(3.12)", {3.12, 0} , IOSTATE_goodbit},
+        { "12,4", {12, 0} , IOSTATE_goodbit},
+        { "-12,4", {-12, 0} , IOSTATE_goodbit},
+        { "-3,--4", {-3, 0} , IOSTATE_goodbit},
+        { "abc", deadbeef , IOSTATE_failbit},
+        { "*12,3", deadbeef , IOSTATE_failbit},
+        { "9*", {9, 0} , IOSTATE_goodbit},
+        { "\t (\n2.3\n,\n1.1\n)", {2.3, 1.1} , IOSTATE_goodbit},
+        { " (6.6,\n1.1\n)", {6.6, 1.1} , IOSTATE_goodbit},
+        { " (4 \t.5,9)", deadbeef , IOSTATE_failbit}
+    };
+
+    for(i=0; i<sizeof(tests)/sizeof(tests[0]); i++) {
+        call_func2(p_basic_string_char_ctor_cstr, &str, deadbeef_str);
+        call_func4(p_basic_stringstream_char_ctor_str, &ss, &str, OPENMODE_out|OPENMODE_in, TRUE);
+        p_basic_istream_char_read_complex_double(&ss.base.base1, &val);
+
+        call_func2(p_basic_string_char_ctor_cstr, &str, tests[i].complex_double_str);
+        call_func4(p_basic_stringstream_char_ctor_str, &ss, &str, OPENMODE_out|OPENMODE_in, TRUE);
+        p_basic_istream_char_read_complex_double(&ss.base.base1, &val);
+        state = (IOSB_iostate)call_func1(p_ios_base_rdstate, &ss.basic_ios.base);
+        ok(tests[i].state == state, "test %d fail, wrong state, expected = %x found = %x\n", i+1, tests[i].state, state);
+        ok(tests[i].right_val.real == val.real, "test %d fail, wrong val, expected = %g found %g\n", i+1, tests[i].right_val.real, val.real);
+        ok(tests[i].right_val.imag == val.imag, "test %d fail, wrong val, expected = %g found %g\n", i+1, tests[i].right_val.imag, val.imag);
+    }
+
+    call_func1(p_basic_stringstream_char_vbase_dtor, &ss);
+    call_func1(p_basic_string_char_dtor, &str);
+}
+
 START_TEST(ios)
 {
     if(!init())
@@ -2204,6 +2325,7 @@ START_TEST(ios)
     test_ostream_print_complex_float();
     test_ostream_print_complex_double();
     test_ostream_print_complex_ldouble();
+    test_istream_read_complex_double();
 
     ok(!invalid_parameter, "invalid_parameter_handler was invoked too many times\n");
 

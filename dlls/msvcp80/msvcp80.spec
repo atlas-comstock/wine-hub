@@ -16,8 +16,8 @@
 @ stub -arch=win64 ??$?5MGU?$char_traits@G@std@@@std@@YAAEAV?$basic_istream@GU?$char_traits@G@std@@@0@AEAV10@AEAV?$complex@M@0@@Z
 @ stub -arch=win32 ??$?5M_WU?$char_traits@_W@std@@@std@@YAAAV?$basic_istream@_WU?$char_traits@_W@std@@@0@AAV10@AAV?$complex@M@0@@Z
 @ stub -arch=win64 ??$?5M_WU?$char_traits@_W@std@@@std@@YAAEAV?$basic_istream@_WU?$char_traits@_W@std@@@0@AEAV10@AEAV?$complex@M@0@@Z
-@ stub -arch=win32 ??$?5NDU?$char_traits@D@std@@@std@@YAAAV?$basic_istream@DU?$char_traits@D@std@@@0@AAV10@AAV?$complex@N@0@@Z
-@ stub -arch=win64 ??$?5NDU?$char_traits@D@std@@@std@@YAAEAV?$basic_istream@DU?$char_traits@D@std@@@0@AEAV10@AEAV?$complex@N@0@@Z
+@ cdecl -arch=win32 ??$?5NDU?$char_traits@D@std@@@std@@YAAAV?$basic_istream@DU?$char_traits@D@std@@@0@AAV10@AAV?$complex@N@0@@Z(ptr ptr) basic_istream_char_read_complex_double
+@ cdecl -arch=win64 ??$?5NDU?$char_traits@D@std@@@std@@YAAEAV?$basic_istream@DU?$char_traits@D@std@@@0@AEAV10@AEAV?$complex@N@0@@Z(ptr ptr) basic_istream_char_read_complex_double
 @ stub -arch=win32 ??$?5NGU?$char_traits@G@std@@@std@@YAAAV?$basic_istream@GU?$char_traits@G@std@@@0@AAV10@AAV?$complex@N@0@@Z
 @ stub -arch=win64 ??$?5NGU?$char_traits@G@std@@@std@@YAAEAV?$basic_istream@GU?$char_traits@G@std@@@0@AEAV10@AEAV?$complex@N@0@@Z
 @ stub -arch=win32 ??$?5N_WU?$char_traits@_W@std@@@std@@YAAAV?$basic_istream@_WU?$char_traits@_W@std@@@0@AAV10@AAV?$complex@N@0@@Z
