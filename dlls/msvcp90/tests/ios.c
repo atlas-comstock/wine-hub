@@ -2193,6 +2193,7 @@ static void test_istream_read_complex_double(void)
     basic_string_char str;
     IOSB_iostate state;
     complex_double val;
+    locale lcl, retlcl;
     int i;
     const char *deadbeef_str = "(3.14159,3456.7890)";
     complex_double deadbeef = {3.14159, 3456.7890};
@@ -2200,87 +2201,101 @@ static void test_istream_read_complex_double(void)
 
     struct _test_istream_read_complex_double {
         const char  *complex_double_str;
+        const char    *lcl;
         complex_double right_val;
         IOSB_iostate state;
     } tests[] = {
-        { "(-1.1\t \t,+3ex  \t  ", deadbeef , IOSTATE_failbit},
-        { "(-1.1  , \t -3.4e \t ", deadbeef , IOSTATE_failbit},
-        { "(-1.1  , \t -3.4E3 \t ", deadbeef , IOSTATE_faileof},
+        { "(0.123,-4.5)", "English", {0.123,-4.5} , IOSTATE_goodbit},
+        { "(0,123,4,5)", "German",  {0.123,4.5} , IOSTATE_goodbit},
+        { "(123,456.,4.5678)", "English", {123456,4.5678} , IOSTATE_goodbit},
+        { "(123.456,,4,5678)", "German",  {123456,4.5678} , IOSTATE_goodbit},
+        { "(123,456.78,-1234.5678)", "English", {123456.78,-1234.5678} , IOSTATE_goodbit},
+        { "(123.456,78,-1234,5678)", "German",  {123456.78,-1234.5678} , IOSTATE_goodbit},
 
-        { "(-1.1,3  \t  ", deadbeef , IOSTATE_faileof},
-        { "(-1.1,3f  \t  ", deadbeef , IOSTATE_failbit},
-        { "(-1.1, \t -3.x \t ", deadbeef , IOSTATE_failbit},
+        { "(8.88,  8))))))))))))))", "English", {8.88, 8} , IOSTATE_goodbit},
+        { "1,234,567,890", "English", {1234567890.0, 0} , IOSTATE_eofbit},
+        { "1,234,567,890", "German", {1.234, 0} , IOSTATE_goodbit},
+        { "1,234e10", "English", {1234.0e10, 0} , IOSTATE_eofbit},
+        { "1,234e10", "German", {1.234e10, 0} , IOSTATE_eofbit},
 
-        { "   +12.3", {12.3, 0} , IOSTATE_eofbit},
-        { "\t-1e2", {-100, 0} , IOSTATE_eofbit},
+        { "(-1.1\t \t,+3ex  \t  ", NULL, deadbeef , IOSTATE_failbit},
+        { "(-1.1  , \t -3.4e \t ", NULL, deadbeef , IOSTATE_failbit},
+        { "(-1.1  , \t -3.4E3 \t ", NULL, deadbeef , IOSTATE_faileof},
 
-        { "-", deadbeef , IOSTATE_faileof},
-        { "(12,.", deadbeef , IOSTATE_faileof },
-        { ".09", {0.09, 0} , IOSTATE_eofbit},
-        { "6.66", {6.66, 0} , IOSTATE_eofbit},
-        { "   1.23", {1.23, 0} , IOSTATE_eofbit},
-        { "\t1e2", {100, 0} , IOSTATE_eofbit},//to this end
+        { "(-1.1,3  \t  ", NULL, deadbeef , IOSTATE_faileof},
+        { "(-1.1,3f  \t  ", NULL, deadbeef , IOSTATE_failbit},
+        { "(-1.1, \t -3.x \t ", NULL, deadbeef , IOSTATE_failbit},
 
-        { "(-1.1,+3E", deadbeef , IOSTATE_faileof},
-        { "(-1.1,+xx", deadbeef , IOSTATE_failbit},
-        { "(-1.1, \t -3.4  \t ", deadbeef , IOSTATE_faileof},
-        { "(-1.1, \t -3.4f", deadbeef , IOSTATE_failbit},
+        { "   +12.3", NULL, {12.3, 0} , IOSTATE_eofbit},
+        { "\t-1e2", NULL, {-100, 0} , IOSTATE_eofbit},
 
-        { "(-1.1,3.", deadbeef , IOSTATE_faileof},
-        { "(-1.1, \t 3", deadbeef , IOSTATE_faileof},
-        { "1e2  \t  ", {100, 0} , IOSTATE_goodbit},
-        { "(3.)", {3, 0} , IOSTATE_goodbit},
+        { "-", NULL, deadbeef , IOSTATE_faileof},
+        { "(12,.", NULL, deadbeef , IOSTATE_faileof },
+        { ".09", NULL, {0.09, 0} , IOSTATE_eofbit},
+        { "6.66", NULL, {6.66, 0} , IOSTATE_eofbit},
+        { "   1.23", NULL, {1.23, 0} , IOSTATE_eofbit},
+        { "\t1e2", NULL, {100, 0} , IOSTATE_eofbit},//to this end
 
-        { "\t \t  ", deadbeef , IOSTATE_faileof},
-        { "   ", deadbeef , IOSTATE_faileof},
-        { "6.66  3", {6.66, 0} , IOSTATE_goodbit},
-        { "55,,", {55, 0} , IOSTATE_goodbit},
-        { "(+.3e5, -4E1)", {30000, -40}, IOSTATE_goodbit},
-        { "(2E1, 3e10)", {20, 3e+10}, IOSTATE_goodbit},
-        { "(1.0eE10, 3)", deadbeef, IOSTATE_failbit},
-        { "++12,45", deadbeef , IOSTATE_failbit},
-        { "(3, -.4)", {3, -0.4}, IOSTATE_goodbit},
-        { " +        ", deadbeef  , IOSTATE_failbit},
-        { "(-12.34, 5.5)", {-12.34, 5.5}, IOSTATE_goodbit},
-        { "(-1.1, --2.2)", deadbeef , IOSTATE_failbit},
-        { "(-1.1\n, \n--2.2", deadbeef , IOSTATE_failbit},
-        { "(+3.3, -4.4)", {3.3, -4.4}, IOSTATE_goodbit },
-        { "(--------2.34, 5.5)", deadbeef , IOSTATE_failbit},
-        { "(5.123, 2.12)", {5.123, 2.12}, IOSTATE_goodbit },
-        { "(3,, 8)", deadbeef , IOSTATE_failbit},
-        { "( 6.666 , 7.77)", {6.666, 7.77} , IOSTATE_goodbit},
-        { "( 9 9,12)", deadbeef , IOSTATE_failbit},
-        { "\t ( 1\t , \t 12&\t  \t)", deadbeef , IOSTATE_failbit},
-        { "(3..3, 8)", deadbeef , IOSTATE_failbit},
-        { "\t(\t9.9\t,\t10.1\t\t)", {9.9, 10.1} , IOSTATE_goodbit},
-        { "(3.14158,1.23458)", {3.14158, 1.23458} , IOSTATE_goodbit},
-        { "(3.12*55)", deadbeef , IOSTATE_failbit},
-        { "(3.12,55*", deadbeef , IOSTATE_failbit},
-        { "(3.12,5*5)", deadbeef , IOSTATE_failbit},
-        { "(3.12 55)", deadbeef, IOSTATE_failbit },
-        { "(3.12,*", deadbeef , IOSTATE_failbit},
-        { "(3.12,)", deadbeef , IOSTATE_failbit},
-        { "(\n3.12\n,\n*", deadbeef , IOSTATE_failbit},
-        { "(\n12\n12", deadbeef , IOSTATE_failbit},
-        { "(12\n4", deadbeef , IOSTATE_failbit},
-        { "(6..)", deadbeef , IOSTATE_failbit},
-        { "(,)", deadbeef , IOSTATE_failbit},
-        { "(,555)", deadbeef , IOSTATE_failbit},
-        { "(*)", deadbeef , IOSTATE_failbit},
-        { "(\n*", deadbeef , IOSTATE_failbit},
-        { "*", deadbeef , IOSTATE_failbit},
-        { "(8.88,  8))))))))))))))", {8.88, 8} , IOSTATE_goodbit},
-        { "(9.99,  9)1&23*()&23*()", {9.99, 9} , IOSTATE_goodbit},
-        { "(3.12)", {3.12, 0} , IOSTATE_goodbit},
-        { "12,4", {12, 0} , IOSTATE_goodbit},
-        { "-12,4", {-12, 0} , IOSTATE_goodbit},
-        { "-3,--4", {-3, 0} , IOSTATE_goodbit},
-        { "abc", deadbeef , IOSTATE_failbit},
-        { "*12,3", deadbeef , IOSTATE_failbit},
-        { "9*", {9, 0} , IOSTATE_goodbit},
-        { "\t (\n2.3\n,\n1.1\n)", {2.3, 1.1} , IOSTATE_goodbit},
-        { " (6.6,\n1.1\n)", {6.6, 1.1} , IOSTATE_goodbit},
-        { " (4 \t.5,9)", deadbeef , IOSTATE_failbit}
+        { "(-1.1,+3E", NULL, deadbeef , IOSTATE_faileof},
+        { "(-1.1,+xx", NULL, deadbeef , IOSTATE_failbit},
+        { "(-1.1, \t -3.4  \t ", NULL, deadbeef , IOSTATE_faileof},
+        { "(-1.1, \t -3.4f", NULL, deadbeef , IOSTATE_failbit},
+
+        { "(-1.1,3.", NULL, deadbeef , IOSTATE_faileof},
+        { "(-1.1, \t 3", NULL, deadbeef , IOSTATE_faileof},
+        { "1e2  \t  ", NULL, {100, 0} , IOSTATE_goodbit},
+        { "(3.)", NULL, {3, 0} , IOSTATE_goodbit},
+
+        { "\t \t  ", NULL, deadbeef , IOSTATE_faileof},
+        { "   ", NULL, deadbeef , IOSTATE_faileof},
+        { "6.66  3", NULL, {6.66, 0} , IOSTATE_goodbit},
+        { "55,,", NULL, {55, 0} , IOSTATE_goodbit},
+        { "(+.3e5, -4E1)", NULL, {30000, -40}, IOSTATE_goodbit},
+        { "(2E1, 3e10)", NULL, {20, 3e+10}, IOSTATE_goodbit},
+        { "(1.0eE10, 3)", NULL, deadbeef, IOSTATE_failbit},
+        { "++12,45", NULL, deadbeef , IOSTATE_failbit},
+        { "(3, -.4)", NULL, {3, -0.4}, IOSTATE_goodbit},
+        { " +        ", NULL, deadbeef  , IOSTATE_failbit},
+        { "(-12.34, 5.5)", NULL, {-12.34, 5.5}, IOSTATE_goodbit},
+        { "(-1.1, --2.2)", NULL, deadbeef , IOSTATE_failbit},
+        { "(-1.1\n, \n--2.2", NULL, deadbeef , IOSTATE_failbit},
+        { "(+3.3, -4.4)", NULL, {3.3, -4.4}, IOSTATE_goodbit },
+        { "(--------2.34, 5.5)", NULL, deadbeef , IOSTATE_failbit},
+        { "(5.123, 2.12)", NULL, {5.123, 2.12}, IOSTATE_goodbit },
+        { "(3,, 8)", NULL, deadbeef , IOSTATE_failbit},
+        { "( 6.666 , 7.77)", NULL, {6.666, 7.77} , IOSTATE_goodbit},
+        { "( 9 9,12)", NULL, deadbeef , IOSTATE_failbit},
+        { "\t ( 1\t , \t 12&\t  \t)", NULL, deadbeef , IOSTATE_failbit},
+        { "(3..3, 8)", NULL, deadbeef , IOSTATE_failbit},
+        { "\t(\t9.9\t,\t10.1\t\t)", NULL, {9.9, 10.1} , IOSTATE_goodbit},
+        { "(3.14158,1.23458)", NULL, {3.14158, 1.23458} , IOSTATE_goodbit},
+        { "(3.12*55)", NULL, deadbeef , IOSTATE_failbit},
+        { "(3.12,55*", NULL, deadbeef , IOSTATE_failbit},
+        { "(3.12,5*5)", NULL, deadbeef , IOSTATE_failbit},
+        { "(3.12 55)", NULL, deadbeef, IOSTATE_failbit },
+        { "(3.12,*", NULL, deadbeef , IOSTATE_failbit},
+        { "(3.12,)", NULL, deadbeef , IOSTATE_failbit},
+        { "(\n3.12\n,\n*", NULL, deadbeef , IOSTATE_failbit},
+        { "(\n12\n12", NULL, deadbeef , IOSTATE_failbit},
+        { "(12\n4", NULL, deadbeef , IOSTATE_failbit},
+        { "(6..)", NULL, deadbeef , IOSTATE_failbit},
+        { "(,)", NULL, deadbeef , IOSTATE_failbit},
+        { "(,555)", NULL, deadbeef , IOSTATE_failbit},
+        { "(*)", NULL, deadbeef , IOSTATE_failbit},
+        { "(\n*", NULL, deadbeef , IOSTATE_failbit},
+        { "*", NULL, deadbeef , IOSTATE_failbit},
+        { "(8.88,  8))))))))))))))", NULL, {8.88, 8} , IOSTATE_goodbit},
+        { "(9.99,  9)1&23*()&23*()", NULL, {9.99, 9} , IOSTATE_goodbit},
+        { "(3.12)", NULL, {3.12, 0} , IOSTATE_goodbit},
+        { "12,4", NULL, {12, 0} , IOSTATE_goodbit},
+        { "-12,4", NULL, {-12, 0} , IOSTATE_goodbit},
+        { "-3,--4", NULL, {-3, 0} , IOSTATE_goodbit},
+        { "abc", NULL, deadbeef , IOSTATE_failbit},
+        { "*12,3", NULL, deadbeef , IOSTATE_failbit},
+        { "9*", NULL, {9, 0} , IOSTATE_goodbit},
+        { "\t (\n2.3\n,\n1.1\n)", NULL, {2.3, 1.1} , IOSTATE_goodbit},
+        { " (6.6,\n1.1\n)", NULL, {6.6, 1.1} , IOSTATE_goodbit},
+        { " (4 \t.5,9)", NULL, deadbeef , IOSTATE_failbit}
     };
 
     for(i=0; i<sizeof(tests)/sizeof(tests[0]); i++) {
@@ -2290,11 +2305,17 @@ static void test_istream_read_complex_double(void)
 
         call_func2(p_basic_string_char_ctor_cstr, &str, tests[i].complex_double_str);
         call_func4(p_basic_stringstream_char_ctor_str, &ss, &str, OPENMODE_out|OPENMODE_in, TRUE);
+        if(tests[i].lcl) {
+            call_func3(p_locale_ctor_cstr, &lcl, tests[i].lcl, 0x3f /* FIXME: support categories */);
+            call_func3(p_basic_ios_char_imbue, &ss.basic_ios, &retlcl, &lcl);
+        }
         p_basic_istream_char_read_complex_double(&ss.base.base1, &val);
         state = (IOSB_iostate)call_func1(p_ios_base_rdstate, &ss.basic_ios.base);
         ok(tests[i].state == state, "test %d fail, wrong state, expected = %x found = %x\n", i+1, tests[i].state, state);
         ok(tests[i].right_val.real == val.real, "test %d fail, wrong val, expected = %g found %g\n", i+1, tests[i].right_val.real, val.real);
         ok(tests[i].right_val.imag == val.imag, "test %d fail, wrong val, expected = %g found %g\n", i+1, tests[i].right_val.imag, val.imag);
+        if(tests[i].lcl)
+            call_func1(p_locale_dtor, &lcl);
     }
 
     call_func1(p_basic_stringstream_char_vbase_dtor, &ss);

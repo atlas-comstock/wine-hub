@@ -13119,12 +13119,27 @@ void __thiscall basic_stringstream_char_str_set(basic_stringstream_char *this, c
 
 static void input(basic_istream_char *this, char **input_string)
 {
+    struct {
+        basic_ostringstream_char obj;
+        basic_ios_char vbase;
+    } oss;
+    locale loc;
     basic_string_char st;
     MSVCP_size_t length;
     const char *temp;
+    ios_base *ostringstream_ios_base, *ostream_ios_base;
+    basic_ostringstream_char_ctor(&oss.obj);
+    ostream_ios_base = &basic_istream_char_get_basic_ios(this)->base;
+    ostringstream_ios_base = &oss.vbase.base;
     if(basic_istream_char_sentry_create(this, FALSE)) {
         MSVCP_basic_string_char_ctor(&st);
         basic_istream_char_getline_bstr(this, &st);
+
+        ios_base_imbue(ostringstream_ios_base, &loc, ostream_ios_base->loc);
+        locale_dtor(&loc);
+        basic_ostream_char_print_bstr(&oss.obj.base, &st);
+        basic_ostringstream_char_str_get(&oss.obj, &st);
+
         length = MSVCP_basic_string_char_length(&st);
         free(*input_string);
         *input_string = malloc(length+1);
@@ -13169,13 +13184,13 @@ static BOOL check_expression(char *input_string, int i, int *char_count, int *ot
                           break;//next level's analyse, after ,  reset all
                 case '.': ++char_count[decimal_point]; break;
                 case '+': case '-':
-                          if((input_string[i+1]>='0'&&input_string[i+1]<='9') || input_string[i+1]=='.')
+                          if(isdigit(input_string[i+1])|| input_string[i+1]=='.')//(input_string[i+1]>='0'&&input_string[i+1]<='9') 
                               break;
                           else
                               return FALSE;
                 case 'E': case 'e':
-                          if(input_string[i+1]>='0' && input_string[i+1]<= '9')
-                              if(input_string[i-1]>='0' && input_string[i-1]<='9')
+                          if(isdigit(input_string[i+1]))
+                              if(isdigit(input_string[i-1]))
                                   ++i;
                           break;
             }
@@ -13186,7 +13201,7 @@ static BOOL check_expression(char *input_string, int i, int *char_count, int *ot
                 return FALSE;
             }
             break; //etc:(12,4)&^         2
-        }else if(input_string[i] >= '0' && input_string[i] <= '9') {
+        }else if(isdigit(input_string[i])) {
             ++*number;
         }else {
             ++*other;
@@ -13240,7 +13255,7 @@ basic_istream_char* __cdecl basic_istream_char_read_complex_double(basic_istream
             v->real = temp.real;
             v->imag = 0;
             while(input_string[i] != '\0') {
-                if(input_string[i]<'0' || input_string[i]>'9')
+                if(! isdigit(input_string[i]))
                     if(input_string[i]!='+'&& input_string[i]!='-'&&input_string[i]!='.'
                             && input_string[i]!='e' && input_string[i]!='E')
                         break;
