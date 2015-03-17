@@ -17,6 +17,8 @@
  */
 
 #include <locale.h>
+#include <stdio.h>
+#include <direct.h>
 
 #include "wine/test.h"
 #include "winbase.h"
@@ -44,8 +46,12 @@ static MSVCRT_long (__cdecl *p__Xtime_diff_to_millis2)(const xtime*, const xtime
 static int (__cdecl *p_xtime_get)(xtime*, int);
 static _Cvtvec* (__cdecl *p__Getcvt)(_Cvtvec*);
 
-static HMODULE msvcp;
+/* filesystem */
+static unsigned long long (__cdecl *p_tr2_sys__File_size)(char const*);
 
+static HMODULE msvcp;
+#define SETNOFAIL(x,y) x = (void*)GetProcAddress(msvcp,y)
+#define SET(x,y) do { SETNOFAIL(x,y); ok(x != NULL, "Export '%s' not found\n", y); } while(0)
 static BOOL init(void)
 {
     HANDLE msvcr;
@@ -57,9 +63,19 @@ static BOOL init(void)
         return FALSE;
     }
 
-    p__Xtime_diff_to_millis2 = (void*)GetProcAddress(msvcp, "_Xtime_diff_to_millis2");
-    p_xtime_get = (void*)GetProcAddress(msvcp, "xtime_get");
-    p__Getcvt = (void*)GetProcAddress(msvcp, "_Getcvt");
+    SET(p__Xtime_diff_to_millis2,
+            "_Xtime_diff_to_millis2");
+    SET(p_xtime_get,
+            "xtime_get");
+    SET(p__Getcvt,
+            "_Getcvt");
+    if(sizeof(void*) == 8) { /* 64-bit initialization */
+        SET(p_tr2_sys__File_size,
+                "?_File_size@sys@tr2@std@@YA_KPEBD@Z");
+    } else {
+        SET(p_tr2_sys__File_size,
+                "?_File_size@sys@tr2@std@@YA_KPBD@Z");
+    }
 
     msvcr = GetModuleHandleA("msvcr120.dll");
     p_setlocale = (void*)GetProcAddress(msvcr, "setlocale");
@@ -190,6 +206,33 @@ static void test__Getcvt(void)
     }
 }
 
+static void test_tr2_sys__File_size(void)
+{
+    unsigned long long val;
+    FILE *file;
+    if(!p_tr2_sys__File_size) {
+        skip("tr2::sys::File_size not implemented\n");
+        return;
+    }
+
+    mkdir("tr2_test_dir");
+    file = fopen("tr2_test_dir/f1", "wt");
+    fprintf(file, "file f1");
+    fclose(file);
+
+    val = p_tr2_sys__File_size("tr2_test_dir/f1");
+    ok(val == 7, "test fail: file_size is %llu\n", val);
+
+    val = p_tr2_sys__File_size("tr2_test_dir");
+    ok(val == 0, "test fail: file_size is %llu\n", val);
+
+    val = p_tr2_sys__File_size("tr2_test_dir/not_exists_file");
+    ok(val == 0, "test fail: file_size is %llu\n", val);
+
+    unlink("tr2_test_dir/f1");
+    rmdir("tr2_test_dir");
+}
+
 START_TEST(msvcp120)
 {
     if(!init()) return;
@@ -197,5 +240,6 @@ START_TEST(msvcp120)
     test_xtime_get();
     test__Getcvt();
 
+    test_tr2_sys__File_size();
     FreeLibrary(msvcp);
 }
