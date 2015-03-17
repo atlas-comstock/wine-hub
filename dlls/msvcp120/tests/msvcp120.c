@@ -48,6 +48,7 @@ static _Cvtvec* (__cdecl *p__Getcvt)(_Cvtvec*);
 
 /* filesystem */
 static unsigned long long (__cdecl *p_tr2_sys__File_size)(char const*);
+static int (__cdecl *p_tr2_sys__Equivalent)(char const*, char const*);
 
 static HMODULE msvcp;
 #define SETNOFAIL(x,y) x = (void*)GetProcAddress(msvcp,y)
@@ -72,9 +73,13 @@ static BOOL init(void)
     if(sizeof(void*) == 8) { /* 64-bit initialization */
         SET(p_tr2_sys__File_size,
                 "?_File_size@sys@tr2@std@@YA_KPEBD@Z");
+        SET(p_tr2_sys__Equivalent,
+                "?_Equivalent@sys@tr2@std@@YAHPEBD0@Z");
     } else {
         SET(p_tr2_sys__File_size,
                 "?_File_size@sys@tr2@std@@YA_KPBD@Z");
+        SET(p_tr2_sys__Equivalent,
+                "?_Equivalent@sys@tr2@std@@YAHPBD0@Z");
     }
 
     msvcr = GetModuleHandleA("msvcr120.dll");
@@ -233,6 +238,48 @@ static void test_tr2_sys__File_size(void)
     rmdir("tr2_test_dir");
 }
 
+static void test_tr2_sys__Equivalent(void)
+{
+    BOOL val;
+    int i;
+    FILE *file;
+    struct {
+        char const *file_path1;
+        char const *file_path2;
+        BOOL equivalent;
+    } tests[] = {
+        { "f1", "tr2_test_dir", -1 },
+        { "tr2_test_dir", "tr2_test_dir",  -1 },
+        { "not_exists_file", "not_exists_file", -1 },
+        { "tr2_test_dir/./f1", "tr2_test_dir/f2", FALSE },
+        { "tr2_test_dir/f1", "tr2_test_dir/f1",   TRUE },
+        { "tr2_test_dir\\f1", "tr2_test_dir/././f1",    TRUE },
+        { "tr2_test_dir/../tr2_test_dir/f1", "tr2_test_dir/f1", TRUE },
+    };
+
+    if (!p_tr2_sys__Equivalent) {
+        skip("tr2::sys::Equivalent not implemented\n");
+        return;
+    }
+
+    mkdir("tr2_test_dir");
+    file = fopen("tr2_test_dir/f1", "wt");
+    fprintf(file, "file f1");
+    fclose(file);
+    file = fopen("tr2_test_dir/f2", "wt");
+    fprintf(file, "file f2");
+    fclose(file);
+
+    for(i=0; i<sizeof(tests)/sizeof(tests[0]); i++) {
+        val = p_tr2_sys__Equivalent(tests[i].file_path1, tests[i].file_path2);
+        ok(tests[i].equivalent==val, "test %d fail: file equivalent is %d\n", i+1, val);
+    }
+
+    unlink("tr2_test_dir/f1");
+    unlink("tr2_test_dir/f2");
+    rmdir("tr2_test_dir");
+}
+
 START_TEST(msvcp120)
 {
     if(!init()) return;
@@ -241,5 +288,6 @@ START_TEST(msvcp120)
     test__Getcvt();
 
     test_tr2_sys__File_size();
+    test_tr2_sys__Equivalent();
     FreeLibrary(msvcp);
 }
