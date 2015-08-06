@@ -2209,6 +2209,36 @@ static void test_CheckNameLegalDOS8Dot3(void)
     }
 }
 
+static void test_CheckLastError(void)
+{
+    HANDLE file;
+
+    SetLastError(0xdeadbeef);
+    RemoveDirectoryA("Z:\\not_exist");
+    todo_wine ok(GetLastError() == ERROR_PATH_NOT_FOUND, "test_CheckLastError(): GetLastError expect ERROR_PATH_NOT_FOUND got %u\n", GetLastError());
+
+    SetLastError(0xdeadbeef);
+    RemoveDirectoryA("not_exist");
+    ok(GetLastError() == ERROR_FILE_NOT_FOUND, "test_CheckLastError(): GetLastError expect ERROR_FILE_NOT_FOUND got %u\n", GetLastError());
+
+    SetLastError(0xdeadbeef);
+    CopyFileA(NULL, "f1", TRUE);
+    ok(GetLastError() ==  ERROR_PATH_NOT_FOUND, "test_CheckLastError(): GetLastError expect ERROR_PATH_NOT_FOUND got %u\n", GetLastError());
+
+    SetLastError(0xdeadbeef);
+    CopyFileA("f1", NULL, TRUE);
+    ok(GetLastError() ==  ERROR_FILE_NOT_FOUND, "test_CheckLastError(): GetLastError expect ERROR_FILE_NOT_FOUND got %u\n", GetLastError());
+
+    SetLastError(0xdeadbeef);
+    file = CreateNamedPipeA("\\\\.\\PiPe\\tests_pipe.c",
+                            PIPE_ACCESS_DUPLEX, PIPE_TYPE_BYTE | PIPE_WAIT, 2, 1024, 1024,
+                            NMPWAIT_USE_DEFAULT_WAIT, NULL);
+    ok(file != INVALID_HANDLE_VALUE, "CreateNamedPipe failed\n");
+    GetFileAttributesA("\\\\.\\PiPe\\tests_pipe.c");
+    todo_wine ok(GetLastError()==ERROR_SUCCESS || GetLastError()==0xdeadbeef, "test_CheckLastError(): GetLastError expect ERROR_SUCCESS or 0xdeadbeef got %u\n", GetLastError());
+    ok(CloseHandle(file), "CloseHandle\n");
+}
+
 START_TEST(path)
 {
     CHAR origdir[MAX_PATH],curdir[MAX_PATH], curDrive, otherDrive;
@@ -2242,4 +2272,5 @@ START_TEST(path)
     test_GetFullPathNameA();
     test_GetFullPathNameW();
     test_CheckNameLegalDOS8Dot3();
+    test_CheckLastError();
 }
