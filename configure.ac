@@ -2603,6 +2603,16 @@ then
     AC_DEFINE(HAVE_ISNAN, 1, [Define to 1 if you have the `isnan' function.])
 fi
 
+dnl Check for issignaling
+AC_CACHE_CHECK([for issignaling], ac_cv_have_issignaling,
+               AC_LINK_IFELSE([AC_LANG_PROGRAM([[#define _GNU_SOURCE
+                               #define STDC_WANT_IEC_60559_BFP_EXT
+                               #include <math.h>]], [[float f = 0.0; return issignaling(f)]])],[ac_cv_have_issignaling="yes"],[ac_cv_have_issignaling="no"]))
+if test "$ac_cv_have_issignaling" = "yes"
+then
+    AC_DEFINE(HAVE_ISSIGNALING, 1, [Define to 1 if you have the `issignaling' function.])
+fi
+
 AC_CHECK_FUNCS(\
 	cbrt \
 	cbrtf \

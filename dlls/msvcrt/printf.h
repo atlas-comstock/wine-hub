@@ -30,6 +30,9 @@
 #define signbit(x) ((x) < 0)
 #endif
 
+#define _GNU_SOURCE
+#define STDC_WANT_IEC_60559_BFP_EXT
+
 typedef struct FUNC_NAME(pf_flags_t)
 {
     APICHAR Sign, LeftAlign, Alternate, PadZero;
@@ -543,13 +546,49 @@ int FUNC_NAME(pf_printf)(FUNC_NAME(puts_clbk) pf_puts, void *puts_ctx, const API
             int len = flags.Precision + 10;
             double val = pf_args(args_ctx, pos, VT_R8, valist).get_double;
             int r;
-            BOOL inf = FALSE, nan = FALSE, ind = FALSE;
+            BOOL inf = FALSE, nan = FALSE, snan = FALSE, ind = FALSE;
 
             if(isinf(val))
                 inf = TRUE;
             else if(isnan(val)) {
-                if(!signbit(val))
+                if(!signbit(val)) {
                     nan = TRUE;
+#if _MSVCR_VER >= 110
+                    int i=63;
+                    printf("\nval in wine is ");
+                    for(; i>-1; --i) {
+                        printf("%d", 1&((*(ULONGLONG*)&val)>>i));
+                        if(i == 52)
+                            printf(" ");
+                    }
+
+                    ULONGLONG b = 0x0008000000000000;
+                    printf("in \n\n");
+#ifdef HAVE_ISSIGNALING
+                    b = issignaling(val);
+                    if(!issignaling(val)) {
+                        printf("issignaling \n\n");
+                        //b = 0;
+                    }else
+                        printf("no \n\n");
+#else
+                    b = b&(*(ULONGLONG *)&val);
+                    printf("have no issignaling \n\n");
+#endif
+                    printf("\nresult in wine is ");
+                    for(i=63; i>-1; --i) {
+                        printf("%d", 1&(b>>i));
+                        if(i == 52)
+                            printf(" ");
+                    }
+                    printf("\n");
+
+                    if(b == 0) {
+                        printf("b==0 is true! so it is SNAN\n");
+                        snan = TRUE;
+                    }
+#endif
+                }
                 else
                     ind = TRUE;
             }
@@ -603,7 +642,11 @@ int FUNC_NAME(pf_printf)(FUNC_NAME(puts_clbk) pf_puts, void *puts_ctx, const API
                 if(inf || nan || ind) {
                     static const char inf_str[] = "#INF";
                     static const char ind_str[] = "#IND";
-                    static const char nan_str[] = "#QNAN";
+                    static char nan_str[] = "#QNAN";
+                    if(snan)
+                        nan_str[1] = 'S';
+                    else
+                        nan_str[1] = 'Q';
 
                     const char *str;
                     int size;
