@@ -291,6 +291,9 @@
 /* Define to 1 if you have the `isnanf' function. */
 #undef HAVE_ISNANF
 
+/* Define to 1 if you have the `issignaling' function. */
+#undef HAVE_ISSIGNALING
+
 /* Define to 1 if you have the <jpeglib.h> header file. */
 #undef HAVE_JPEGLIB_H
 
