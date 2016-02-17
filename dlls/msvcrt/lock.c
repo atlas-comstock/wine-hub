@@ -595,6 +595,15 @@ concurrency_details__taskCollection* __thiscall concurrency_details__taskCollect
     TRACE("(%p)\n", this);
     return this;
 }
+
+/* ?Alloc@Concurrency@@YAPAXI@Z */
+/* ?Alloc@Concurrency@@YAPEAX_K@Z */
+void* __cdecl concurrency_alloc(unsigned int numbytes)
+{
+    TRACE("(%d)\n", numbytes);
+
+    return HeapAlloc(GetProcessHeap(), HEAP_ZERO_MEMORY, numbytes);
+}
 #endif
 
 /**********************************************************************
