@@ -31,6 +31,7 @@
 #include "cxx.h"
 
 WINE_DEFAULT_DEBUG_CHANNEL(msvcrt);
+#define COOPERATIVE_TIMEOUT_INFINITE    (unsigned int)-1
 
 typedef struct
 {
@@ -555,6 +556,26 @@ unsigned int __cdecl _GetConcurrency(void)
     return val;
 }
 
+typedef struct
+{
+    critical_section lock;
+    condition_variable condition;
+    BOOL signaled;
+} concurrency_event;
+
+/* ??0event@Concurrency@@QAE@XZ */
+/* ??0event@Concurrency@@QEAA@XZ */
+DEFINE_THISCALL_WRAPPER(concurrency_event_ctor, 4)
+concurrency_event* __thiscall concurrency_event_ctor(concurrency_event *this)
+{
+    TRACE("(%p)\n", this);
+
+    printf("%d size of concurrency_event \n\n", sizeof(*this));
+    critical_section_ctor(&this->lock);
+    condition_variable_ctor(&this->condition);
+    this->signaled = FALSE;
+    return this;
+}
 #endif
 
 /**********************************************************************

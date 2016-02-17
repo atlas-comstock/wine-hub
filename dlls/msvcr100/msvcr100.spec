@@ -64,8 +64,8 @@
 @ stub -arch=win64 ??0default_scheduler_exists@Concurrency@@QEAA@PEBD@Z
 @ stub -arch=win32 ??0default_scheduler_exists@Concurrency@@QAE@XZ
 @ stub -arch=win64 ??0default_scheduler_exists@Concurrency@@QEAA@XZ
-@ stub -arch=win32 ??0event@Concurrency@@QAE@XZ
-@ stub -arch=win64 ??0event@Concurrency@@QEAA@XZ
+@ thiscall -arch=win32 ??0event@Concurrency@@QAE@XZ(ptr) concurrency_event_ctor
+@ cdecl -arch=win64 ??0event@Concurrency@@QEAA@XZ(ptr) concurrency_event_ctor
 @ thiscall -arch=i386 ??0exception@std@@QAE@ABQBD@Z(ptr ptr) MSVCRT_exception_ctor
 @ cdecl -arch=win64 ??0exception@std@@QEAA@AEBQEBD@Z(ptr ptr) MSVCRT_exception_ctor
 @ thiscall -arch=i386 ??0exception@std@@QAE@ABQBDH@Z(ptr ptr long) MSVCRT_exception_ctor_noalloc

@@ -117,9 +117,9 @@
 @ stub -arch=arm ??0default_scheduler_exists@Concurrency@@QAA@XZ
 @ stub -arch=i386 ??0default_scheduler_exists@Concurrency@@QAE@XZ
 @ stub -arch=win64 ??0default_scheduler_exists@Concurrency@@QEAA@XZ
-@ stub -arch=arm ??0event@Concurrency@@QAA@XZ
-@ stub -arch=i386 ??0event@Concurrency@@QAE@XZ
-@ stub -arch=win64 ??0event@Concurrency@@QEAA@XZ
+@ cdecl -arch=arm ??0event@Concurrency@@QAA@XZ(ptr) msvcr120.??0event@Concurrency@@QAA@XZ
+@ thiscall -arch=i386 ??0event@Concurrency@@QAE@XZ(ptr) msvcr120.??0event@Concurrency@@QAE@XZ
+@ cdecl -arch=win64 ??0event@Concurrency@@QEAA@XZ(ptr) msvcr120.??0event@Concurrency@@QEAA@XZ
 @ cdecl -arch=arm ??0exception@std@@QAA@ABQBD@Z(ptr ptr) msvcr120.??0exception@std@@QAA@ABQBD@Z
 @ thiscall -arch=i386 ??0exception@std@@QAE@ABQBD@Z(ptr ptr) msvcr120.??0exception@std@@QAE@ABQBD@Z
 @ cdecl -arch=win64 ??0exception@std@@QEAA@AEBQEBD@Z(ptr ptr) msvcr120.??0exception@std@@QEAA@AEBQEBD@Z
@@ -307,9 +307,9 @@
 @ cdecl -arch=arm ??1critical_section@Concurrency@@QAA@XZ(ptr) msvcr120.??1critical_section@Concurrency@@QAA@XZ
 @ thiscall -arch=i386 ??1critical_section@Concurrency@@QAE@XZ(ptr) msvcr120.??1critical_section@Concurrency@@QAE@XZ
 @ cdecl -arch=win64 ??1critical_section@Concurrency@@QEAA@XZ(ptr) msvcr120.??1critical_section@Concurrency@@QEAA@XZ
-@ stub -arch=arm ??1event@Concurrency@@QAA@XZ
-@ stub -arch=i386 ??1event@Concurrency@@QAE@XZ
-@ stub -arch=win64 ??1event@Concurrency@@QEAA@XZ
+@ cdecl -arch=arm ??1event@Concurrency@@QAA@XZ(ptr) msvcr120.??1event@Concurrency@@QAA@XZ
+@ thiscall -arch=i386 ??1event@Concurrency@@QAE@XZ(ptr) msvcr120.??1event@Concurrency@@QAE@XZ
+@ cdecl -arch=win64 ??1event@Concurrency@@QEAA@XZ(ptr) msvcr120.??1event@Concurrency@@QEAA@XZ
 @ cdecl -arch=arm ??1exception@std@@UAA@XZ(ptr) msvcr120.??1exception@std@@UAA@XZ
 @ thiscall -arch=i386 ??1exception@std@@UAE@XZ(ptr) msvcr120.??1exception@std@@UAE@XZ
 @ cdecl -arch=win64 ??1exception@std@@UEAA@XZ(ptr) msvcr120.??1exception@std@@UEAA@XZ

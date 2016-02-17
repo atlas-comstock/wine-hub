@@ -122,9 +122,9 @@
 @ stub -arch=arm ??0default_scheduler_exists@Concurrency@@QAA@XZ
 @ stub -arch=i386 ??0default_scheduler_exists@Concurrency@@QAE@XZ
 @ stub -arch=win64 ??0default_scheduler_exists@Concurrency@@QEAA@XZ
-@ stub -arch=arm ??0event@Concurrency@@QAA@XZ
-@ stub -arch=i386 ??0event@Concurrency@@QAE@XZ
-@ stub -arch=win64 ??0event@Concurrency@@QEAA@XZ
+@ cdecl -arch=arm ??0event@Concurrency@@QAA@XZ(ptr) concurrency_event_ctor
+@ thiscall -arch=i386 ??0event@Concurrency@@QAE@XZ(ptr) concurrency_event_ctor
+@ cdecl -arch=win64 ??0event@Concurrency@@QEAA@(ptr) concurrency_event_ctor
 @ cdecl -arch=arm ??0exception@std@@QAA@ABQBD@Z(ptr ptr) MSVCRT_exception_ctor
 @ thiscall -arch=i386 ??0exception@std@@QAE@ABQBD@Z(ptr ptr) MSVCRT_exception_ctor
 @ cdecl -arch=win64 ??0exception@std@@QEAA@AEBQEBD@Z(ptr ptr) MSVCRT_exception_ctor
