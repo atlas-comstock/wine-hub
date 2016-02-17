@@ -28,8 +28,8 @@
 @ stub -arch=win64 ??0_Scoped_lock@_ReentrantPPLLock@details@Concurrency@@QEAA@AEAV123@@Z
 @ stub -arch=win32 ??0_SpinLock@details@Concurrency@@QAE@ACJ@Z
 @ stub -arch=win64 ??0_SpinLock@details@Concurrency@@QEAA@AECJ@Z
-@ stub -arch=win32 ??0_TaskCollection@details@Concurrency@@QAE@XZ
-@ stub -arch=win64 ??0_TaskCollection@details@Concurrency@@QEAA@XZ
+@ thiscall -arch=win32 ??0_TaskCollection@details@Concurrency@@QAE@XZ(ptr) concurrency_details__taskCollection_ctor
+@ cdecl -arch=win64 ??0_TaskCollection@details@Concurrency@@QEAA@XZ(ptr) concurrency_details__taskCollection_ctor
 @ stub -arch=win32 ??0_Timer@details@Concurrency@@IAE@I_N@Z
 @ stub -arch=win64 ??0_Timer@details@Concurrency@@IEAA@I_N@Z
 @ thiscall -arch=i386 ??0__non_rtti_object@std@@QAE@ABV01@@Z(ptr ptr) MSVCRT___non_rtti_object_copy_ctor

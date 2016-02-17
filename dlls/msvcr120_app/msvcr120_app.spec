@@ -63,9 +63,9 @@
 @ stub -arch=arm ??0_TaskCollection@details@Concurrency@@QAA@PAV_CancellationTokenState@12@@Z
 @ stub -arch=i386 ??0_TaskCollection@details@Concurrency@@QAE@PAV_CancellationTokenState@12@@Z
 @ stub -arch=win64 ??0_TaskCollection@details@Concurrency@@QEAA@PEAV_CancellationTokenState@12@@Z
-@ stub -arch=arm ??0_TaskCollection@details@Concurrency@@QAA@XZ
-@ stub -arch=i386 ??0_TaskCollection@details@Concurrency@@QAE@XZ
-@ stub -arch=win64 ??0_TaskCollection@details@Concurrency@@QEAA@XZ
+@ cdecl -arch=arm ??0_TaskCollection@details@Concurrency@@QAA@XZ(ptr) msvcr120.??0_TaskCollection@details@Concurrency@@QAA@XZ
+@ thiscall -arch=i386 ??0_TaskCollection@details@Concurrency@@QAE@XZ(ptr) msvcr120.??0_TaskCollection@details@Concurrency@@QAE@XZ
+@ cdecl -arch=win64 ??0_TaskCollection@details@Concurrency@@QEAA@XZ(ptr) msvcr120.??0_TaskCollection@details@Concurrency@@QEAA@XZ
 @ stub -arch=arm ??0_Timer@details@Concurrency@@IAA@I_N@Z
 @ stub -arch=i386 ??0_Timer@details@Concurrency@@IAE@I_N@Z
 @ stub -arch=win64 ??0_Timer@details@Concurrency@@IEAA@I_N@Z

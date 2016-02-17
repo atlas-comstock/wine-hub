@@ -576,6 +576,25 @@ concurrency_event* __thiscall concurrency_event_ctor(concurrency_event *this)
     this->signaled = FALSE;
     return this;
 }
+
+typedef struct
+{
+    int count;
+    BOOL is_read_only;
+} concurrency_details__taskCollection;
+
+typedef struct
+{
+} task;
+
+/* ??0_TaskCollection@details@Concurrency@@QAE@XZ */
+/* ??0_TaskCollection@details@Concurrency@@QEAA@XZ */
+DEFINE_THISCALL_WRAPPER(concurrency_details__taskCollection_ctor, 4)
+concurrency_details__taskCollection* __thiscall concurrency_details__taskCollection_ctor(concurrency_details__taskCollection *this)
+{
+    TRACE("(%p)\n", this);
+    return this;
+}
 #endif
 
 /**********************************************************************
