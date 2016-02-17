@@ -604,6 +604,19 @@ void* __cdecl concurrency_alloc(unsigned int numbytes)
 
     return HeapAlloc(GetProcessHeap(), HEAP_ZERO_MEMORY, numbytes);
 }
+
+typedef struct
+{
+    int signaled;
+} concurrency_details__unrealizedchore;
+
+/* ?_Schedule@_TaskCollection@details@Concurrency@@QAEXPAV_UnrealizedChore@23@@Z */
+/* ?_Schedule@_TaskCollection@details@Concurrency@@QEAAXPEAV_UnrealizedChore@23@@Z */
+DEFINE_THISCALL_WRAPPER(concurrency_details__taskcollection__schedule, 4)
+void __cdecl concurrency_details__taskcollection__schedule(concurrency_details__unrealizedchore *this)
+{
+    TRACE("(%p)\n", this);
+}
 #endif
 
 /**********************************************************************
