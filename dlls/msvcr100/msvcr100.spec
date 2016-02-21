@@ -170,8 +170,8 @@
 @ stub -arch=win64 ??1_Scoped_lock@_ReentrantPPLLock@details@Concurrency@@QEAA@XZ
 @ stub -arch=win32 ??1_SpinLock@details@Concurrency@@QAE@XZ
 @ stub -arch=win64 ??1_SpinLock@details@Concurrency@@QEAA@XZ
-@ stub -arch=win32 ??1_TaskCollection@details@Concurrency@@QAE@XZ
-@ stub -arch=win64 ??1_TaskCollection@details@Concurrency@@QEAA@XZ
+@ thiscall -arch=win32 ??1_TaskCollection@details@Concurrency@@QAE@XZ(ptr) concurrency_details__taskCollection_dtor
+@ cdecl -arch=win64 ??1_TaskCollection@details@Concurrency@@QEAA@XZ(ptr) concurrency_details__taskCollection_dtor
 @ stub -arch=win32 ??1_Timer@details@Concurrency@@IAE@XZ
 @ stub -arch=win64 ??1_Timer@details@Concurrency@@IEAA@XZ
 @ thiscall -arch=i386 ??1__non_rtti_object@std@@UAE@XZ(ptr) MSVCRT___non_rtti_object_dtor

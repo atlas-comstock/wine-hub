@@ -643,6 +643,14 @@ TaskCollectionStatus __cdecl concurrency_details__taskcollection__runandwait(con
     TaskCollectionStatus tmp = CANCELED;
     return tmp;
 }
+
+/* ??1_TaskCollection@details@Concurrency@@QAE@XZ */
+/* ??1_TaskCollection@details@Concurrency@@QEAA@XZ */
+DEFINE_THISCALL_WRAPPER(concurrency_details__taskCollection_dtor, 4)
+void __thiscall concurrency_details__taskCollection_dtor(concurrency_details__taskCollection *this)
+{
+    TRACE("(%p)\n", this);
+}
 #endif
 
 /**********************************************************************

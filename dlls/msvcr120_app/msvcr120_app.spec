@@ -289,9 +289,9 @@
 @ stub -arch=i386 ??1_SpinLock@details@Concurrency@@QAE@XZ
 @ stub -arch=win64 ??1_SpinLock@details@Concurrency@@QEAA@XZ
 @ stub -arch=i386 ??1_StructuredTaskCollection@details@Concurrency@@QAE@XZ
-@ stub -arch=arm ??1_TaskCollection@details@Concurrency@@QAA@XZ
-@ stub -arch=i386 ??1_TaskCollection@details@Concurrency@@QAE@XZ
-@ stub -arch=win64 ??1_TaskCollection@details@Concurrency@@QEAA@XZ
+@ cdecl -arch=arm ??1_TaskCollection@details@Concurrency@@QAA@XZ(ptr) msvcr120.??1_TaskCollection@details@Concurrency@@QAA@XZ
+@ thiscall -arch=i386 ??1_TaskCollection@details@Concurrency@@QAE@XZ(ptr) msvcr120.??1_TaskCollection@details@Concurrency@@QAE@XZ
+@ cdecl -arch=win64 ??1_TaskCollection@details@Concurrency@@QEAA@XZ(ptr) msvcr120.??1_TaskCollection@details@Concurrency@@QEAA@XZ
 @ stub -arch=arm ??1_Timer@details@Concurrency@@MAA@XZ
 @ stub -arch=i386 ??1_Timer@details@Concurrency@@MAE@XZ
 @ stub -arch=win64 ??1_Timer@details@Concurrency@@MEAA@XZ
