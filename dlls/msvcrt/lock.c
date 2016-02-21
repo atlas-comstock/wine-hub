@@ -627,6 +627,22 @@ void __cdecl concurrency_event_set(concurrency_event *this)
 
 //    critical_section_unlock(&this->critical_section_member);
 }
+
+typedef enum
+{
+    CANCELED,
+    COMPLETED,
+    NOT_COMPLETE
+} TaskCollectionStatus;
+
+/* ?_RunAndWait@_TaskCollection@details@Concurrency@@QAG?AW4_TaskCollectionStatus@23@PAV_UnrealizedChore@23@@Z */
+/* ?_RunAndWait@_TaskCollection@details@Concurrency@@QEAA?AW4_TaskCollectionStatus@23@PEAV_UnrealizedChore@23@@Z */
+TaskCollectionStatus __cdecl concurrency_details__taskcollection__runandwait(concurrency_details__unrealizedchore* unrealizedchore)
+{
+    TRACE("(%p)\n", unrealizedchore);
+    TaskCollectionStatus tmp = CANCELED;
+    return tmp;
+}
 #endif
 
 /**********************************************************************
