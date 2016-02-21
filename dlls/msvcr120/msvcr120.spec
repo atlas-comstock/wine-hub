@@ -310,9 +310,9 @@
 @ cdecl -arch=arm ??1critical_section@Concurrency@@QAA@XZ(ptr) critical_section_dtor
 @ thiscall -arch=i386 ??1critical_section@Concurrency@@QAE@XZ(ptr) critical_section_dtor
 @ cdecl -arch=win64 ??1critical_section@Concurrency@@QEAA@XZ(ptr) critical_section_dtor
-@ stub -arch=arm ??1event@Concurrency@@QAA@XZ
-@ stub -arch=i386 ??1event@Concurrency@@QAE@XZ
-@ stub -arch=win64 ??1event@Concurrency@@QEAA@XZ
+@ cdecl -arch=arm ??1event@Concurrency@@QAA@XZ(ptr) concurrency_event_dtor
+@ thiscall -arch=i386 ??1event@Concurrency@@QAE@XZ(ptr) concurrency_event_dtor
+@ cdecl -arch=win64 ??1event@Concurrency@@QEAA@XZ(ptr) concurrency_event_dtor
 @ cdecl -arch=arm ??1exception@std@@UAA@XZ(ptr) MSVCRT_exception_dtor
 @ thiscall -arch=i386 ??1exception@std@@UAE@XZ(ptr) MSVCRT_exception_dtor
 @ cdecl -arch=win64 ??1exception@std@@UEAA@XZ(ptr) MSVCRT_exception_dtor

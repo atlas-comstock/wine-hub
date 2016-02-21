@@ -651,6 +651,14 @@ void __thiscall concurrency_details__taskCollection_dtor(concurrency_details__ta
 {
     TRACE("(%p)\n", this);
 }
+/* ??1event@Concurrency@@QAE@XZ */
+/* ??1event@Concurrency@@QEAA@XZ */
+DEFINE_THISCALL_WRAPPER(concurrency_event_dtor, 4)
+void __thiscall concurrency_event_dtor(concurrency_event *this)
+{
+    TRACE("(%p)\n", this);
+    critical_section_dtor(&this->lock);
+}
 #endif
 
 /**********************************************************************
