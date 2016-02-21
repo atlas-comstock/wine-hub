@@ -617,6 +617,16 @@ void __cdecl concurrency_details__taskcollection__schedule(concurrency_details__
 {
     TRACE("(%p)\n", this);
 }
+
+/* ?set@event@Concurrency@@QAEXXZ */
+/* ?set@event@Concurrency@@QEAAXXZ */
+DEFINE_THISCALL_WRAPPER(concurrency_event_set, 4)
+void __cdecl concurrency_event_set(concurrency_event *this)
+{
+    TRACE("(%p)\n", this);
+
+//    critical_section_unlock(&this->critical_section_member);
+}
 #endif
 
 /**********************************************************************

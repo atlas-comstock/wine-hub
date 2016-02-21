@@ -474,8 +474,8 @@
 @ cdecl -arch=win64 ?raw_name@type_info@@QEBAPEBDXZ(ptr) MSVCRT_type_info_raw_name
 @ stub -arch=win32 ?reset@event@Concurrency@@QAEXXZ
 @ stub -arch=win64 ?reset@event@Concurrency@@QEAAXXZ
-@ stub -arch=win32 ?set@event@Concurrency@@QAEXXZ
-@ stub -arch=win64 ?set@event@Concurrency@@QEAAXXZ
+@ thiscall -arch=win32 ?set@event@Concurrency@@QAEXXZ(ptr) concurrency_event_set
+@ cdecl -arch=win64 ?set@event@Concurrency@@QEAAXXZ(ptr) concurrency_event_set
 @ cdecl ?set_new_handler@@YAP6AXXZP6AXXZ@Z(ptr) MSVCRT_set_new_handler
 @ stub ?set_terminate@@YAP6AXXZH@Z
 @ cdecl ?set_terminate@@YAP6AXXZP6AXXZ@Z(ptr) MSVCRT_set_terminate

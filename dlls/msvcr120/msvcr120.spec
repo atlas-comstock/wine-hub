@@ -755,9 +755,9 @@
 @ stub -arch=arm ?reset@event@Concurrency@@QAAXXZ
 @ stub -arch=i386 ?reset@event@Concurrency@@QAEXXZ
 @ stub -arch=win64 ?reset@event@Concurrency@@QEAAXXZ
-@ stub -arch=arm ?set@event@Concurrency@@QAAXXZ
-@ stub -arch=i386 ?set@event@Concurrency@@QAEXXZ
-@ stub -arch=win64 ?set@event@Concurrency@@QEAAXXZ
+@ cdecl -arch=arm ?set@event@Concurrency@@QAAXXZ(ptr) concurrency_event_set
+@ thiscall -arch=i386 ?set@event@Concurrency@@QAEXXZ(ptr) concurrency_event_set
+@ cdecl -arch=win64 ?set@event@Concurrency@@QEAAXXZ(ptr) concurrency_event_set
 @ cdecl ?set_new_handler@@YAP6AXXZP6AXXZ@Z(ptr) MSVCRT_set_new_handler
 @ stub -arch=win32 ?set_task_execution_resources@Concurrency@@YAXGPAU_GROUP_AFFINITY@@@Z
 @ stub -arch=win64 ?set_task_execution_resources@Concurrency@@YAXGPEAU_GROUP_AFFINITY@@@Z
