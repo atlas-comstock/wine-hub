@@ -601,6 +601,44 @@ condition_variable* __thiscall condition_variable_ctor(condition_variable *this)
     return this;
 }
 
+void wake_waiters(condition_variable *this, LONG count_to_wake)
+{
+    InterlockedExchange(&this->total_waiter_count, this->total_waiter_count - count_to_wake);
+    if (count_to_wake > 0) {
+        while (1) {
+            LONG n = this->notify_state->waiter_count - this->notify_state->notify_count;
+            if (n > 0) {
+                n = n > count_to_wake ? count_to_wake : n;
+                this->notify_state->notify_count += n;
+                ReleaseSemaphore(this->notify_state->semaphore, n, NULL);
+                count_to_wake -= n;
+            }
+            if (count_to_wake > 0)
+                this->notify_state = this->notify_state->next;
+            else
+                break;
+        }
+    }
+}
+
+/* ?notify_one@_Condition_variable@details@Concurrency@@QAAXXZ  */
+/* ?notify_one@_Condition_variable@details@Concurrency@@QEAAXXZ */
+DEFINE_THISCALL_WRAPPER(condition_variable_notify_one, 4)
+void __thiscall condition_variable_notify_one(condition_variable *this)
+{
+    TRACE("(%p)\n", this);
+
+    critical_section cs;
+    if (InterlockedExchangeAdd(&this->total_waiter_count, 0)) {//not sure we need this
+        critical_section_scoped_lock_ctor(&this->scoped_lock, &cs);
+        if (!this->total_waiter_count)
+            return;
+
+        wake_waiters(this, 1);
+        critical_section_scoped_lock_dtor(&this->scoped_lock);
+    }
+}
+
 typedef struct
 {
     critical_section lock;

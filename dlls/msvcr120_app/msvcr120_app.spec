@@ -742,9 +742,9 @@
 @ stub -arch=arm ?notify_all@_Condition_variable@details@Concurrency@@QAAXXZ
 @ stub -arch=i386 ?notify_all@_Condition_variable@details@Concurrency@@QAEXXZ
 @ stub -arch=win64 ?notify_all@_Condition_variable@details@Concurrency@@QEAAXXZ
-@ stub -arch=arm ?notify_one@_Condition_variable@details@Concurrency@@QAAXXZ
-@ stub -arch=i386 ?notify_one@_Condition_variable@details@Concurrency@@QAEXXZ
-@ stub -arch=win64 ?notify_one@_Condition_variable@details@Concurrency@@QEAAXXZ
+@ cdecl -arch=arm ?notify_one@_Condition_variable@details@Concurrency@@QAAXXZ(ptr) msvcr120.?notify_one@_Condition_variable@details@Concurrency@@QAAXXZ
+@ thiscall -arch=i386 ?notify_one@_Condition_variable@details@Concurrency@@QAEXXZ(ptr) msvcr120.?notify_one@_Condition_variable@details@Concurrency@@QAEXXZ
+@ cdecl -arch=win64 ?notify_one@_Condition_variable@details@Concurrency@@QEAAXXZ(ptr) msvcr120.?notify_one@_Condition_variable@details@Concurrency@@QEAAXXZ
 @ cdecl -arch=arm ?raw_name@type_info@@QBAPBDXZ(ptr) msvcr120.?raw_name@type_info@@QBAPBDXZ
 @ thiscall -arch=i386 ?raw_name@type_info@@QBEPBDXZ(ptr) msvcr120.?raw_name@type_info@@QBEPBDXZ
 @ cdecl -arch=win64 ?raw_name@type_info@@QEBAPEBDXZ(ptr) msvcr120.?raw_name@type_info@@QEBAPEBDXZ

@@ -764,9 +764,9 @@
 @ stub -arch=arm ?notify_all@_Condition_variable@details@Concurrency@@QAAXXZ
 @ stub -arch=i386 ?notify_all@_Condition_variable@details@Concurrency@@QAEXXZ
 @ stub -arch=win64 ?notify_all@_Condition_variable@details@Concurrency@@QEAAXXZ
-@ stub -arch=arm ?notify_one@_Condition_variable@details@Concurrency@@QAAXXZ
-@ stub -arch=i386 ?notify_one@_Condition_variable@details@Concurrency@@QAEXXZ
-@ stub -arch=win64 ?notify_one@_Condition_variable@details@Concurrency@@QEAAXXZ
+@ cdecl -arch=arm ?notify_one@_Condition_variable@details@Concurrency@@QAAXXZ(ptr) condition_variable_notify_one
+@ thiscall -arch=i386 ?notify_one@_Condition_variable@details@Concurrency@@QAEXXZ(ptr) condition_variable_notify_one
+@ cdecl -arch=win64 ?notify_one@_Condition_variable@details@Concurrency@@QEAAXXZ(ptr) condition_variable_notify_one
 @ cdecl -arch=arm ?raw_name@type_info@@QBAPBDXZ(ptr) MSVCRT_type_info_raw_name
 @ thiscall -arch=i386 ?raw_name@type_info@@QBEPBDXZ(ptr) MSVCRT_type_info_raw_name
 @ cdecl -arch=win64 ?raw_name@type_info@@QEBAPEBDXZ(ptr) MSVCRT_type_info_raw_name
