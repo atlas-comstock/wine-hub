@@ -270,9 +270,9 @@
 @ stub -arch=arm ??1_Cancellation_beacon@details@Concurrency@@QAA@XZ
 @ stub -arch=i386 ??1_Cancellation_beacon@details@Concurrency@@QAE@XZ
 @ stub -arch=win64 ??1_Cancellation_beacon@details@Concurrency@@QEAA@XZ
-@ stub -arch=arm ??1_Condition_variable@details@Concurrency@@QAA@XZ
-@ stub -arch=i386 ??1_Condition_variable@details@Concurrency@@QAE@XZ
-@ stub -arch=win64 ??1_Condition_variable@details@Concurrency@@QEAA@XZ
+@ cdecl -arch=arm ??1_Condition_variable@details@Concurrency@@QAA@XZ(ptr) msvcr120.??1_Condition_variable@details@Concurrency@@QAA@XZ
+@ thiscall -arch=i386 ??1_Condition_variable@details@Concurrency@@QAE@XZ(ptr) msvcr120.??1_Condition_variable@details@Concurrency@@QAE@XZ
+@ cdecl -arch=win64 ??1_Condition_variable@details@Concurrency@@QEAA@XZ(ptr) msvcr120.??1_Condition_variable@details@Concurrency@@QEAA@XZ
 @ stub -arch=arm ??1_NonReentrantBlockingLock@details@Concurrency@@QAA@XZ
 @ stub -arch=i386 ??1_NonReentrantBlockingLock@details@Concurrency@@QAE@XZ
 @ stub -arch=win64 ??1_NonReentrantBlockingLock@details@Concurrency@@QEAA@XZ

@@ -32,6 +32,7 @@
 
 WINE_DEFAULT_DEBUG_CHANNEL(msvcrt);
 #define COOPERATIVE_TIMEOUT_INFINITE    (unsigned int)-1
+#define LONG_MAX    0x7fffffffL
 
 typedef struct
 {
@@ -554,6 +555,50 @@ unsigned int __cdecl _GetConcurrency(void)
     }
 
     return val;
+}
+
+typedef struct _waiter_state{
+    struct _waiter_state* prev, *next;
+    HANDLE semaphore;
+    LONG waiter_count, notify_count;
+} waiter_state;
+
+waiter_state* waiter_state_ctor(waiter_state *this)
+{
+    TRACE("(%p)\n", this);
+
+    this->prev = this->next = this;
+    this->semaphore = CreateSemaphoreA(NULL, 0, LONG_MAX, 0);
+    this->waiter_count = this->notify_count = 0;
+    return this;
+}
+
+void waiter_state_dtor(waiter_state *this)
+{
+    TRACE("(%p)\n", this);
+
+    CloseHandle(this->semaphore);
+}
+
+typedef struct
+{
+    critical_section_scoped_lock scoped_lock;
+    waiter_state* notify_state;
+    waiter_state* wait_state;
+    LONG total_waiter_count;
+} condition_variable;
+
+/* ??1_Condition_variable@details@Concurrency@@QAE@XZ */
+/* ??1_Condition_variable@details@Concurrency@@QEAA@XZ */
+DEFINE_THISCALL_WRAPPER(condition_variable_ctor, 4)
+condition_variable* __thiscall condition_variable_ctor(condition_variable *this)
+{
+    TRACE("(%p)\n", this);
+
+    this->notify_state = NULL;
+    this->wait_state   = NULL;
+    this->total_waiter_count = 0;
+    return this;
 }
 
 typedef struct
