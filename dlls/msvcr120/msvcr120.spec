@@ -743,9 +743,9 @@
 @ cdecl -arch=arm ?native_handle@critical_section@Concurrency@@QAAAAV12@XZ(ptr) critical_section_native_handle
 @ thiscall -arch=i386 ?native_handle@critical_section@Concurrency@@QAEAAV12@XZ(ptr) critical_section_native_handle
 @ cdecl -arch=win64 ?native_handle@critical_section@Concurrency@@QEAAAEAV12@XZ(ptr) critical_section_native_handle
-@ stub -arch=arm ?notify_all@_Condition_variable@details@Concurrency@@QAAXXZ
-@ stub -arch=i386 ?notify_all@_Condition_variable@details@Concurrency@@QAEXXZ
-@ stub -arch=win64 ?notify_all@_Condition_variable@details@Concurrency@@QEAAXXZ
+@ cdecl -arch=arm ?notify_all@_Condition_variable@details@Concurrency@@QAAXXZ(ptr) condition_variable_notify_all
+@ thiscall -arch=i386 ?notify_all@_Condition_variable@details@Concurrency@@QAEXXZ(ptr) condition_variable_notify_all
+@ cdecl -arch=win64 ?notify_all@_Condition_variable@details@Concurrency@@QEAAXXZ(ptr) condition_variable_notify_all
 @ cdecl -arch=arm ?notify_one@_Condition_variable@details@Concurrency@@QAAXXZ(ptr) condition_variable_notify_one
 @ thiscall -arch=i386 ?notify_one@_Condition_variable@details@Concurrency@@QAEXXZ(ptr) condition_variable_notify_one
 @ cdecl -arch=win64 ?notify_one@_Condition_variable@details@Concurrency@@QEAAXXZ(ptr) condition_variable_notify_one

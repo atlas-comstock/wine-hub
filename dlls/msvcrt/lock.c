@@ -639,6 +639,25 @@ void __thiscall condition_variable_notify_one(condition_variable *this)
     }
 }
 
+/* ?notify_all@_Condition_variable@details@Concurrency@@QAAXXZ */
+/* ?notify_all@_Condition_variable@details@Concurrency@@QAEXXZ */
+/* ?notify_all@_Condition_variable@details@Concurrency@@QEAAXXZ */
+DEFINE_THISCALL_WRAPPER(condition_variable_notify_all, 4)
+void __thiscall condition_variable_notify_all(condition_variable *this)
+{
+    TRACE("(%p)\n", this);
+
+    critical_section cs;
+    if (InterlockedExchangeAdd(&this->total_waiter_count, 0)) {//not sure we need this
+        critical_section_scoped_lock_ctor(&this->scoped_lock, &cs);
+        if (!this->total_waiter_count)
+            return;
+
+        wake_waiters(this, this->total_waiter_count);
+        critical_section_scoped_lock_dtor(&this->scoped_lock);
+    }
+}
+
 typedef struct
 {
     critical_section lock;
