@@ -108,6 +108,20 @@ typedef struct
     void *unknown[3];
 } critical_section_scoped_lock;
 
+typedef struct _waiter_state{
+    struct _waiter_state* prev, *next;
+    HANDLE semaphore;
+    LONG waiter_count, notify_count;
+} waiter_state;
+
+typedef struct
+{
+    critical_section_scoped_lock scoped_lock;
+    waiter_state* notify_state;
+    waiter_state* wait_state;
+    LONG total_waiter_count;
+} condition_variable;
+
 static inline float __port_infinity(void)
 {
     static const unsigned __inf_bytes = 0x7f800000;
@@ -182,6 +196,12 @@ static MSVCRT_bool (__thiscall *p_critical_section_try_lock_for)(critical_sectio
 static critical_section_scoped_lock* (__thiscall *p_critical_section_scoped_lock_ctor)
     (critical_section_scoped_lock*, critical_section *);
 static void (__thiscall *p_critical_section_scoped_lock_dtor)(critical_section_scoped_lock*);
+static condition_variable* (__thiscall *p_condition_variable_ctor)(condition_variable*);
+static void (__thiscall *p_condition_variable_notify_one)(condition_variable*);
+static void (__thiscall *p_condition_variable_notify_all)(condition_variable*);
+static void (__thiscall *p_condition_variable_wait)(condition_variable*, critical_section*);
+static BOOL (__thiscall *p_condition_variable_wait_for)(condition_variable*, critical_section*, unsigned int);
+static void (__thiscall *p_condition_variable_dtor)(condition_variable*);
 
 #define SETNOFAIL(x,y) x = (void*)GetProcAddress(module,y)
 #define SET(x,y) do { SETNOFAIL(x,y); ok(x != NULL, "Export '%s' not found\n", y); } while(0)
@@ -231,6 +251,18 @@ static BOOL init(void)
                 "??0scoped_lock@critical_section@Concurrency@@QEAA@AEAV12@@Z");
         SET(p_critical_section_scoped_lock_dtor,
                 "??1scoped_lock@critical_section@Concurrency@@QEAA@XZ");
+        SET(p_condition_variable_ctor,
+                "??0_Condition_variable@details@Concurrency@@QEAA@XZ");
+        SET(p_condition_variable_notify_one,
+                "?notify_one@_Condition_variable@details@Concurrency@@QEAAXXZ");
+        SET(p_condition_variable_notify_all,
+                "?notify_all@_Condition_variable@details@Concurrency@@QEAAXXZ");
+        SET(p_condition_variable_wait,
+                "?wait@_Condition_variable@details@Concurrency@@QEAAXAEAVcritical_section@3@@Z");
+        SET(p_condition_variable_wait_for,
+                "?wait_for@_Condition_variable@details@Concurrency@@QEAA_NAEAVcritical_section@3@I@Z");
+        SET(p_condition_variable_dtor,
+                "??1_Condition_variable@details@Concurrency@@QEAA@XZ");
     } else {
 #ifdef __arm__
         SET(p_critical_section_ctor,
@@ -251,6 +283,18 @@ static BOOL init(void)
                 "??0scoped_lock@critical_section@Concurrency@@QAA@AAV12@@Z");
         SET(p_critical_section_scoped_lock_dtor,
                 "??1scoped_lock@critical_section@Concurrency@@QAA@XZ");
+        SET(p_condition_variable_ctor,
+                "??0_Condition_variable@details@Concurrency@@QAA@XZ");
+        SET(p_condition_variable_notify_one,
+                "?notify_one@_Condition_variable@details@Concurrency@@QAAXXZ");
+        SET(p_condition_variable_notify_all,
+                "?notify_all@_Condition_variable@details@Concurrency@@QAAXXZ");
+        SET(p_condition_variable_wait,
+                "?wait@_Condition_variable@details@Concurrency@@QAAXAAVcritical_section@3@@Z");
+        SET(p_condition_variable_wait_for,
+                "?wait_for@_Condition_variable@details@Concurrency@@QAA_NAAVcritical_section@3@I@Z");
+        SET(p_condition_variable_dtor,
+                "??1_Condition_variable@details@Concurrency@@QAA@XZ");
 #else
         SET(p_critical_section_ctor,
                 "??0critical_section@Concurrency@@QAE@XZ");
@@ -270,6 +314,18 @@ static BOOL init(void)
                 "??0scoped_lock@critical_section@Concurrency@@QAE@AAV12@@Z");
         SET(p_critical_section_scoped_lock_dtor,
                 "??1scoped_lock@critical_section@Concurrency@@QAE@XZ");
+        SET(p_condition_variable_ctor,
+                "??0_Condition_variable@details@Concurrency@@QAE@XZ");
+        SET(p_condition_variable_notify_one,
+                "?notify_one@_Condition_variable@details@Concurrency@@QAEXXZ");
+        SET(p_condition_variable_notify_all,
+                "?notify_all@_Condition_variable@details@Concurrency@@QAEXXZ");
+        SET(p_condition_variable_wait,
+                "?wait@_Condition_variable@details@Concurrency@@QAEXAAVcritical_section@3@@Z");
+        SET(p_condition_variable_wait_for,
+                "?wait_for@_Condition_variable@details@Concurrency@@QAE_NAAVcritical_section@3@I@Z");
+        SET(p_condition_variable_dtor,
+                "??1_Condition_variable@details@Concurrency@@QAE@XZ");
 #endif
     }
 
@@ -707,6 +763,79 @@ static void test_critical_section(void)
     call_func1(p_critical_section_dtor, &mutex);
 }
 
+BOOL ready = FALSE;
+condition_variable cv;
+static void start_test_condition_variable_notify_all(void)
+{
+    printf("start_test_condition_variable_notify_all start\n");
+    //call_func1(p_critical_section_lock, &mutex);
+    ready = TRUE;
+    printf("ready is TRUE \n");
+    //char c; scanf("%c", &c);
+    call_func1(p_condition_variable_notify_all, &cv);
+    printf("notify all  \n");
+    //call_func1(p_critical_section_unlock, &mutex);
+    printf("start_test_condition_variable_notify_all end\n\n\n");
+}
+
+static unsigned __stdcall test_condition_variable_notify_all(int id)
+{
+    //call_func1(p_critical_section_ctor, &mutex);
+    printf("number %d thread start lock\n", id);
+    call_func1(p_critical_section_lock, &mutex);
+    printf("number %d thread \n", id);
+    if(ready != TRUE) {
+        printf("wait for id %d\n", id);
+        call_func2(p_condition_variable_wait, &cv, &mutex);
+    }
+    printf("id is %d\n", id);
+    printf("destroy!\n");
+    call_func1(p_critical_section_unlock, &mutex);
+    //call_func1(p_critical_section_dtor, &mutex);
+    return 1;
+}
+
+static void test_condition_variable(void)
+{
+    HANDLE threads[10];
+    DWORD ret;
+    int i;
+    printf("condition_variable_ctor!\n");
+    call_func1(p_condition_variable_ctor, &cv);
+    call_func1(p_critical_section_ctor, &mutex);
+    char c;
+    printf("condition_variable_ctor end !\n\n");
+    for(i=0; i<10; ++i) {
+        //scanf("%c", &c);
+        printf("boot number %d \n", i);
+        threads[i] = (HANDLE)_beginthreadex(NULL, 0, test_condition_variable_notify_all, i, 0, NULL);
+        //ok(threads[i] != NULL, "_beginthreadex failed (%d)\n", errno);
+    }
+    printf("threads end\n\n");
+    start_test_condition_variable_notify_all();
+    ready = TRUE;
+    printf("start_test_condition_variable_notify_all end\n\n\n");
+    //Sleep(9000);
+    //scanf("%c", &c);
+    //printf("Sleep end\n\n");
+    printf("start wait object\n\n");
+    for(i=0; i<10; ++i) {
+        printf("WaitForSingleObject  :  %d\n", i);
+        //Sleep(100);
+        ret = WaitForSingleObject(threads[i], INFINITE);
+        ok(ret == WAIT_OBJECT_0, "ret = %d\n", ret);
+        printf("CloseHandle i :  %d\n", i);
+        ret = CloseHandle(threads[i]);
+        ok(ret, "ret = %d\n", ret);
+        printf("wait end\n");
+    }
+    printf("end wait object\n\n");
+    call_func1(p_condition_variable_dtor, &cv);
+    call_func1(p_critical_section_dtor, &mutex);
+    //Sleep(1000);
+    //Sleep(1000);
+}
+
 START_TEST(msvcr120)
 {
     if (!init()) return;
@@ -720,4 +849,5 @@ START_TEST(msvcr120)
     test__strtof();
     test_remainder();
     test_critical_section();
+    test_condition_variable();
 }
