@@ -17,9 +17,9 @@
 @ stub -arch=arm ??0_Cancellation_beacon@details@Concurrency@@QAA@XZ
 @ stub -arch=i386 ??0_Cancellation_beacon@details@Concurrency@@QAE@XZ
 @ stub -arch=win64 ??0_Cancellation_beacon@details@Concurrency@@QEAA@XZ
-@ stub -arch=arm ??0_Condition_variable@details@Concurrency@@QAA@XZ
-@ stub -arch=i386 ??0_Condition_variable@details@Concurrency@@QAE@XZ
-@ stub -arch=win64 ??0_Condition_variable@details@Concurrency@@QEAA@XZ
+@ cdecl -arch=arm ??0_Condition_variable@details@Concurrency@@QAA@XZ(ptr) condition_variable_dtor
+@ thiscall -arch=i386 ??0_Condition_variable@details@Concurrency@@QAE@XZ(ptr) condition_variable_dtor
+@ cdecl -arch=win64 ??0_Condition_variable@details@Concurrency@@QEAA@XZ(ptr) condition_variable_dtor
 @ stub -arch=arm ??0_Context@details@Concurrency@@QAA@PAVContext@2@@Z
 @ stub -arch=i386 ??0_Context@details@Concurrency@@QAE@PAVContext@2@@Z
 @ stub -arch=win64 ??0_Context@details@Concurrency@@QEAA@PEAVContext@2@@Z

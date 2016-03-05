@@ -780,6 +780,27 @@ BOOL __thiscall condition_variable_wait_for(condition_variable *this,
     return 1;
     //return priv_timed_wait(state, t);
 }
+/* ??0_Condition_variable@details@Concurrency@@QAA@XZ */
+/* ??0_Condition_variable@details@Concurrency@@QAE@XZ */
+/* ??0_Condition_variable@details@Concurrency@@QEAA@XZ */
+DEFINE_THISCALL_WRAPPER(condition_variable_dtor, 4)
+void __thiscall condition_variable_dtor(condition_variable *this)
+{
+    TRACE("(%p)\n", this);
+
+    if(this->notify_state) {
+        waiter_state* p = this->notify_state;
+        const waiter_state *end = p;
+        do {
+            waiter_state* next = p->next;
+            HeapFree(GetProcessHeap(), 0, p);
+            p = next;
+        } while (p != end);
+
+        this->notify_state = NULL;
+        this->wait_state = NULL;
+    }
+}
 
 typedef struct
 {
