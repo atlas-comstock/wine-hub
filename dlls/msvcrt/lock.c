@@ -763,7 +763,23 @@ void __thiscall condition_variable_wait(condition_variable *this, critical_secti
 
     priv_wait(this, state);
 }
+/* ?wait_for@_Condition_variable@details@Concurrency@@QAA_NAAVcritical_section@3@I@Z */
+/* ?wait_for@_Condition_variable@details@Concurrency@@QAE_NAAVcritical_section@3@I@Z */
+/* ?wait_for@_Condition_variable@details@Concurrency@@QEAA_NAEAVcritical_section@3@I@Z */
+DEFINE_THISCALL_WRAPPER(condition_variable_wait_for, 4)
+BOOL __thiscall condition_variable_wait_for(condition_variable *this,
+        critical_section *cs, unsigned int time)
+{
+    TRACE("(%p)\n", this);
 
+    //    relocker< Lockable > nlocker(lock);
+    waiter_state* const state = initiate_wait(this);
+
+    //unlocker.unlock();
+
+    return 1;
+    //return priv_timed_wait(state, t);
+}
 
 typedef struct
 {
