@@ -658,6 +658,113 @@ void __thiscall condition_variable_notify_all(condition_variable *this)
     }
 }
 
+typedef struct {
+    critical_section cs;
+    BOOL unlocked;
+} relocker;
+
+relocker* relocker_ctor(relocker *this)
+{
+    critical_section_ctor(&this->cs);
+    this->unlocked = FALSE;
+    return this;
+}
+
+void relocker_unlock(relocker *this)
+{
+    critical_section_unlock(&this->cs);
+    this->unlocked = TRUE;
+}
+
+void relocker_dtor(relocker *this)
+{
+    if(this->unlocked) {
+        critical_section_lock(&this->cs);
+    }
+    critical_section_dtor(&this->cs);
+}
+
+waiter_state* initiate_wait(condition_variable *this)
+{
+    critical_section cs;
+    waiter_state *next, *end, *wait_state;
+    critical_section_scoped_lock_ctor(&this->scoped_lock, &cs);
+    if (!this->wait_state) {
+        // It's the first waiter
+        wait_state = HeapAlloc(GetProcessHeap(), HEAP_ZERO_MEMORY, sizeof(waiter_state));//remember to free
+        this->notify_state = this->wait_state = wait_state;
+        wait_state->waiter_count = 1;
+        InterlockedExchange(&this->total_waiter_count, 1);
+        critical_section_scoped_lock_dtor(&this->scoped_lock);
+        return wait_state;
+    }
+
+    end = this->wait_state;
+    // Find a waiter state without any ongoing notifications
+    do {
+        if (this->wait_state->notify_count == 0) {
+            ++this->wait_state->waiter_count;
+            InterlockedExchange(&this->total_waiter_count, &this->total_waiter_count + 1);
+            critical_section_scoped_lock_dtor(&this->scoped_lock);
+            return this->wait_state;
+        }
+        this->wait_state = this->wait_state->next;
+    } while(this->wait_state != end);
+
+    // None found, create a new waiter state
+    wait_state = HeapAlloc(GetProcessHeap(), HEAP_ZERO_MEMORY, sizeof(waiter_state));//remember to free
+    this->wait_state = waiter_state_ctor(wait_state);
+    this->wait_state->prev = end;
+    next = end->next;//maybe not work, need to allocte for next
+    this->wait_state->next = next;
+    next->prev = end->next = this->wait_state;
+
+    this->wait_state->waiter_count = 1;
+    InterlockedExchange(&this->total_waiter_count, this->total_waiter_count + 1);
+
+    critical_section_scoped_lock_dtor(&this->scoped_lock);
+    return this->wait_state;
+}
+
+void priv_wait(condition_variable *this, waiter_state* state) {
+    while (TRUE) {
+        const DWORD res = WaitForSingleObject(state->semaphore, INFINITE);
+        if (res == WAIT_OBJECT_0) {
+            critical_section cs;
+            critical_section_scoped_lock_ctor(&this->scoped_lock, &cs);
+            --state->waiter_count;
+            if (state->notify_count > 0)
+                --state->notify_count;
+            else
+                InterlockedExchange(&this->total_waiter_count, this->total_waiter_count - 1);
+
+            if (state->notify_count > 0) {
+                // Total waiter count is already actual here (see wake_waiters)
+                --state->notify_count;
+                --state->waiter_count;
+                return;
+            }
+        }
+    }
+}
+
+/* ?wait@_Condition_variable@details@Concurrency@@QAAXAAVcritical_section@3@@Z */
+/* ?wait@_Condition_variable@details@Concurrency@@QAEXAAVcritical_section@3@@Z */
+/* ?wait@_Condition_variable@details@Concurrency@@QEAAXAEAVcritical_section@3@@Z */
+DEFINE_THISCALL_WRAPPER(condition_variable_wait, 4)
+void __thiscall condition_variable_wait(condition_variable *this, critical_section *cs)
+{
+    TRACE("(%p)\n", this);
+
+    //    relocker< Lockable > nlocker(lock);
+    waiter_state* const state = initiate_wait(this);
+
+    //unlocker.unlock();
+
+    priv_wait(this, state);
+}
+
+
 typedef struct
 {
     critical_section lock;
